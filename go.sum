@@ -13,6 +13,12 @@ github.com/Yosorable/ms-shared v0.0.0-20221218092602-4e2544a24ce7 h1:EIEteGrYbeK
 github.com/Yosorable/ms-shared v0.0.0-20221218092602-4e2544a24ce7/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
 github.com/Yosorable/ms-shared v0.0.0-20221218135708-032ca9f4c7af h1:iaWaUE4zLHLf5e/3O8I4B+l+oB+8VoCQjNOUF4wOrNw=
 github.com/Yosorable/ms-shared v0.0.0-20221218135708-032ca9f4c7af/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
+github.com/Yosorable/ms-shared v0.0.0-20221219055718-a8fbdf47b696 h1:pI54+NgO7naIiVNet5iUzCYt2tkFNW4eWQmBT9ZjtFQ=
+github.com/Yosorable/ms-shared v0.0.0-20221219055718-a8fbdf47b696/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
+github.com/Yosorable/ms-shared v0.0.0-20221219144918-00292880784c h1:2E0E4EH+IwCpc4Aqrw46r08wDfX7MPPLNY1AtqUPdio=
+github.com/Yosorable/ms-shared v0.0.0-20221219144918-00292880784c/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
+github.com/Yosorable/ms-shared v0.0.0-20221219145602-1f368cae723b h1:w5dg8AqLgGcV1VSnk/K7sztSJK4JoYCoq8cXhd4onbc=
+github.com/Yosorable/ms-shared v0.0.0-20221219145602-1f368cae723b/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
