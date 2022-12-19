@@ -3,7 +3,7 @@ module github.com/Yosorable/ms-metadata
 go 1.19
 
 require (
-	github.com/Yosorable/ms-shared v0.0.0-20221218092602-4e2544a24ce7
+	github.com/Yosorable/ms-shared v0.0.0-20221218135708-032ca9f4c7af
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	google.golang.org/grpc v1.51.0
 	gorm.io/gorm v1.24.2

@@ -21,7 +21,7 @@ func CreateObj(ctx context.Context, req *pb.CreateObjRequest) (*pb.CreateObjRepl
 
 	mtObj := &model.MtObj{
 		Name:        req.GetName(),
-		Description: req.GetDescription(),
+		Description: req.Description,
 	}
 
 	mtFields := []*model.MtObjField{}
@@ -29,8 +29,14 @@ func CreateObj(ctx context.Context, req *pb.CreateObjRequest) (*pb.CreateObjRepl
 		mtFields = append(mtFields, &model.MtObjField{
 			Name:        ele.GetName(),
 			FieldType:   int(ele.GetFieldType()),
-			Description: ele.GetDescription(),
-			LookupObjID: int(ele.GetLookupObjId()),
+			Description: ele.Description,
+			LookupObjID: func() *int {
+				if ele.LookupObjId != nil {
+					res := int(*ele.LookupObjId)
+					return &res
+				}
+				return nil
+			}(),
 			IsAllowNull: ele.GetIsAllowNull(),
 		})
 	}
