@@ -70,7 +70,7 @@ func CreateObj(ctx context.Context, req *pb.CreateObjRequest) (*pb.CreateObjRepl
 		idName := ""
 		for _, ele := range req.GetFields() {
 			sql += generateFieldSQL(ele) + ",\n"
-			if ele.FieldType == pb.CreateObjRequest_ObjField_ID {
+			if ele.FieldType == pb.ObjField_ID {
 				idName = ele.Name
 			}
 		}
@@ -155,7 +155,7 @@ func checkCreateRequest(req *pb.CreateObjRequest) error {
 		switch {
 		case !mtutils.CheckFieldName(field.Name):
 			return utils.NewStatusError(7003, "field name not allow")
-		case field.FieldType == pb.CreateObjRequest_ObjField_UNSET_NOTALLOW:
+		case field.FieldType == pb.ObjField_UNSET_NOTALLOW:
 			return utils.NewStatusError(7004, "field type should be set correctly")
 		case func() bool {
 			_, exists := fieldsIndex[field.Name]
@@ -163,7 +163,7 @@ func checkCreateRequest(req *pb.CreateObjRequest) error {
 		}():
 			return utils.NewStatusError(7005, "field name repeated")
 		}
-		if field.FieldType == pb.CreateObjRequest_ObjField_ID {
+		if field.FieldType == pb.ObjField_ID {
 			idCnt++
 			if idCnt > 1 {
 				return utils.NewStatusError(7006, "you can only set one id")
@@ -176,7 +176,7 @@ func checkCreateRequest(req *pb.CreateObjRequest) error {
 		switch {
 		case len(ele.ObjFieldNames) == 0:
 			return utils.NewStatusError(7007, "index fields should be set")
-		case ele.IndexType == pb.CreateObjRequest_ObjIndex_UNSET_NOTALLOW:
+		case ele.IndexType == pb.ObjIndex_UNSET_NOTALLOW:
 			return utils.NewStatusError(7008, "index type should be set correctly")
 		}
 
@@ -189,24 +189,24 @@ func checkCreateRequest(req *pb.CreateObjRequest) error {
 	return nil
 }
 
-func generateFieldSQL(field *pb.CreateObjRequest_ObjField) (res string) {
+func generateFieldSQL(field *pb.ObjField) (res string) {
 	res += mtutils.PackFieldNameForSql(field.Name) + " "
 	switch field.FieldType {
-	case pb.CreateObjRequest_ObjField_ID:
+	case pb.ObjField_ID:
 		res += `int UNSIGNED NOT NULL AUTO_INCREMENT`
 		return
-	case pb.CreateObjRequest_ObjField_LOOKUPID:
+	case pb.ObjField_LOOKUPID:
 		res += `int UNSIGNED NOT NULL`
 		return
-	case pb.CreateObjRequest_ObjField_INTEGER:
+	case pb.ObjField_INTEGER:
 		res += `int`
-	case pb.CreateObjRequest_ObjField_DOUBLE:
+	case pb.ObjField_DOUBLE:
 		res += `double`
-	case pb.CreateObjRequest_ObjField_STRING:
+	case pb.ObjField_STRING:
 		res += `varchar(255)`
-	case pb.CreateObjRequest_ObjField_TEXT:
+	case pb.ObjField_TEXT:
 		res += `text`
-	case pb.CreateObjRequest_ObjField_DATETIME:
+	case pb.ObjField_DATETIME:
 		res += `datetime`
 	}
 	res += ` `
@@ -218,11 +218,11 @@ func generateFieldSQL(field *pb.CreateObjRequest_ObjField) (res string) {
 	return
 }
 
-func generateFieldIndexSQL(index *pb.CreateObjRequest_ObjIndex) (res string) {
+func generateFieldIndexSQL(index *pb.ObjIndex) (res string) {
 	switch index.GetIndexType() {
-	case pb.CreateObjRequest_ObjIndex_COMMON:
+	case pb.ObjIndex_COMMON:
 		res += "INDEX "
-	case pb.CreateObjRequest_ObjIndex_UNIQUE:
+	case pb.ObjIndex_UNIQUE:
 		res += "UNIQUE INDEX "
 	}
 	indexName := ""

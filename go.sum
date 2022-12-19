@@ -19,6 +19,8 @@ github.com/Yosorable/ms-shared v0.0.0-20221219144918-00292880784c h1:2E0E4EH+IwC
 github.com/Yosorable/ms-shared v0.0.0-20221219144918-00292880784c/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
 github.com/Yosorable/ms-shared v0.0.0-20221219145602-1f368cae723b h1:w5dg8AqLgGcV1VSnk/K7sztSJK4JoYCoq8cXhd4onbc=
 github.com/Yosorable/ms-shared v0.0.0-20221219145602-1f368cae723b/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
+github.com/Yosorable/ms-shared v0.0.0-20221219151908-6342ef486660 h1:yoTNdLFTyvZ7qWsbk+uYs7IVZ8RfTNurpx63GMr7fms=
+github.com/Yosorable/ms-shared v0.0.0-20221219151908-6342ef486660/go.mod h1:Sa2CzqUeBmQGLBhxLOtCY/GeaUbIYIiEWBUBn7XZZTg=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
