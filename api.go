@@ -20,3 +20,7 @@ func (mts metadataServer) DynamicCall(ctx context.Context, req *common_pb.Dynami
 func (metadataServer) CreateObj(ctx context.Context, req *pb.CreateObjRequest) (*pb.CreateObjReply, error) {
 	return handler.CreateObj(ctx, req)
 }
+
+func (metadataServer) GetObj(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjReply, error) {
+	return handler.GetObj(ctx, req)
+}
