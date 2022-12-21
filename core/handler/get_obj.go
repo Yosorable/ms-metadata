@@ -10,187 +10,127 @@ import (
 	"github.com/Yosorable/ms-shared/utils"
 )
 
-func GetObj(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjReply, error) {
-
-	single := true // req中查询参数是id或者name，不是list
-	if s, err := checkGetObjReq(req); err != nil {
+func GetObjByID(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjByIDReply, error) {
+	if err := checkGetObjReq(req); err != nil {
 		return nil, err
-	} else {
-		single = s
 	}
 
-	var objs []*model.MtObj
-	fieldsMap := make(map[int][]*pb.ObjFieldDao) // obj_id: fields
-	if req.GetQueryType() != pb.GetObjRequest_FIELDS {
-		switch {
-		case req.Id != nil:
-			var err error
-			objs, err = getObjByIDs([]int32{*req.Id})
-			if err != nil {
-				return nil, utils.NewStatusError(7000, err)
-			}
-		case len(req.IdList) != 0:
-			var err error
-			objs, err = getObjByIDs(req.IdList)
-			if err != nil {
-				return nil, utils.NewStatusError(7000, err)
-			}
-		case req.Name != nil:
-			var err error
-			objs, err = getObjByNames([]string{*req.Name})
-			if err != nil {
-				return nil, utils.NewStatusError(7000, err)
-			}
-		case len(req.NameList) != 0:
-			var err error
-			objs, err = getObjByNames(req.NameList)
-			if err != nil {
-				return nil, utils.NewStatusError(7000, err)
-			}
-		}
-
-		res := &pb.GetObjReply{}
-		if req.GetQueryType() == pb.GetObjRequest_OBJ {
-			if single {
-				if len(objs) == 1 {
-					obj := objs[0]
-					timeInfo, des := getObjTimeInfoAndDescription(req, obj)
-					res.ObjWithFields = &pb.ObjDaoWithFieldsDao{
-						Obj: &pb.ObjDao{
-							Id:          int32(obj.ID),
-							Name:        obj.Name,
-							Description: des,
-							TimeInfo:    timeInfo,
-						},
-					}
-				}
-				return res, nil
-			}
-			for _, obj := range objs {
-				timeInfo, des := getObjTimeInfoAndDescription(req, obj)
-				res.ObjWithFieldsList = append(res.ObjWithFieldsList, &pb.ObjDaoWithFieldsDao{
-					Obj: &pb.ObjDao{
-						Id:          int32(obj.ID),
-						Name:        obj.Name,
-						Description: des,
-						TimeInfo:    timeInfo,
-					},
-				})
-			}
-			return res, nil
-		}
-	} else {
-		var objIds []int
-		switch {
-		case req.Id != nil:
-			objIds = append(objIds, int(*req.Id))
-		case len(req.IdList) != 0:
-			for _, id := range req.IdList {
-				objIds = append(objIds, int(id))
-			}
-		case req.Name != nil:
-			res, err := getObjIDsByNames([]string{*req.Name})
-			if err != nil {
-				return nil, err
-			}
-			objIds = res
-		case len(req.NameList) != 0:
-			res, err := getObjIDsByNames(req.NameList)
-			if err != nil {
-				return nil, err
-			}
-			objIds = res
-		}
-		for _, id := range objIds {
-			res, err := getObjFieldsDto(req, id)
-			if err != nil {
-				return nil, err
-			}
-			fieldsMap[id] = res
-		}
-
-		res := &pb.GetObjReply{}
-		if single {
-			if len(objIds) == 1 {
-				res.ObjWithFields = &pb.ObjDaoWithFieldsDao{
-					Fields: fieldsMap[objIds[0]],
-				}
-			}
-			return res, nil
-		}
-		for _, v := range fieldsMap {
-			res.ObjWithFieldsList = append(res.ObjWithFieldsList, &pb.ObjDaoWithFieldsDao{
-				Fields: v,
-			})
-		}
-		return res, nil
+	if len(req.GetIdList()) == 0 {
+		return nil, utils.NewStatusError(7000, "find no id")
 	}
 
-	for _, obj := range objs {
-		fields, err := getObjFieldsDto(req, obj.ID)
+	reply := &pb.GetObjByIDReply{}
+
+	assemblyObjs := func() error {
+		res, err := getObjByIDs(req.GetIdList())
 		if err != nil {
+			return utils.NewStatusError(7000, err)
+		}
+		reply.Objs = make(map[int32]*pb.ObjDao)
+		for _, ele := range res {
+			ti, des := getObjTimeInfoAndDescription(req, ele)
+			reply.Objs[int32(ele.ID)] = &pb.ObjDao{
+				Id:          int32(ele.ID),
+				Name:        ele.Name,
+				Description: des,
+				TimeInfo:    ti,
+			}
+		}
+		return nil
+	}
+
+	assemblyFields := func() error {
+		reply.Fields = make(map[int32]*pb.ObjFieldDaoList)
+		for _, id := range req.GetIdList() {
+			fields, err := getObjFieldsDto(req, int(id))
+			if err != nil {
+				return utils.NewStatusError(7000, err)
+			}
+			reply.Fields[id] = &pb.ObjFieldDaoList{
+				Objfields: fields,
+			}
+		}
+		return nil
+	}
+
+	if req.QueryType == pb.GetObjRequest_OBJ || req.QueryType == pb.GetObjRequest_OBJ_WITH_FIELDS {
+		if err := assemblyObjs(); err != nil {
 			return nil, err
 		}
-		fieldsMap[obj.ID] = fields
 	}
 
-	res := &pb.GetObjReply{}
-
-	if single {
-		if len(objs) == 1 {
-			obj := objs[0]
-			timeInfo, des := getObjTimeInfoAndDescription(req, obj)
-			res.ObjWithFields = &pb.ObjDaoWithFieldsDao{
-				Obj: &pb.ObjDao{
-					Id:          int32(obj.ID),
-					Name:        obj.Name,
-					Description: des,
-					TimeInfo:    timeInfo,
-				},
-				Fields: fieldsMap[obj.ID],
-			}
+	if req.QueryType == pb.GetObjRequest_FIELDS || req.QueryType == pb.GetObjRequest_OBJ_WITH_FIELDS {
+		if err := assemblyFields(); err != nil {
+			return nil, err
 		}
-		return res, nil
 	}
 
-	for _, obj := range objs {
-		timeInfo, des := getObjTimeInfoAndDescription(req, obj)
-		res.ObjWithFieldsList = append(res.ObjWithFieldsList, &pb.ObjDaoWithFieldsDao{
-			Obj: &pb.ObjDao{
-				Id:          int32(obj.ID),
-				Name:        obj.Name,
-				Description: des,
-				TimeInfo:    timeInfo,
-			},
-			Fields: fieldsMap[obj.ID],
-		})
-	}
-
-	return res, nil
+	return reply, nil
 }
 
-func checkGetObjReq(req *pb.GetObjRequest) (single bool, err error) {
-	if req == nil {
-		return single, utils.NewStatusError(7000, "please set request")
+func GetObjByName(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjByNameReply, error) {
+	if err := checkGetObjReq(req); err != nil {
+		return nil, err
 	}
 
-	setCnt := 0
-	if req.Id != nil {
-		setCnt++
-		single = true
+	if len(req.GetNameList()) == 0 {
+		return nil, utils.NewStatusError(7000, "find no name")
 	}
-	if req.Name != nil {
-		setCnt++
-		single = true
+
+	reply := &pb.GetObjByNameReply{}
+
+	objs, err := getObjByNames(req.GetNameList())
+	if err != nil {
+		return nil, utils.NewStatusError(7000, err)
 	}
-	if len(req.IdList) != 0 {
-		setCnt++
+
+	assemblyObjs := func() {
+		reply.Objs = make(map[string]*pb.ObjDao)
+		for _, ele := range objs {
+			ti, des := getObjTimeInfoAndDescription(req, ele)
+			reply.Objs[ele.Name] = &pb.ObjDao{
+				Id:          int32(ele.ID),
+				Name:        ele.Name,
+				Description: des,
+				TimeInfo:    ti,
+			}
+		}
 	}
-	if len(req.NameList) != 0 {
-		setCnt++
+
+	assemblyFields := func() error {
+		reply.Fields = make(map[string]*pb.ObjFieldDaoList)
+		for _, ele := range objs {
+			fields, err := getObjFieldsDto(req, int(ele.ID))
+			if err != nil {
+				return utils.NewStatusError(7000, err)
+			}
+			reply.Fields[ele.Name] = &pb.ObjFieldDaoList{
+				Objfields: fields,
+			}
+		}
+		return nil
 	}
-	if setCnt != 1 {
-		return single, utils.NewStatusError(7000, "you set too many fields")
+
+	if req.QueryType == pb.GetObjRequest_OBJ || req.QueryType == pb.GetObjRequest_OBJ_WITH_FIELDS {
+		assemblyObjs()
+	}
+
+	if req.QueryType == pb.GetObjRequest_FIELDS || req.QueryType == pb.GetObjRequest_OBJ_WITH_FIELDS {
+		if err := assemblyFields(); err != nil {
+			return nil, err
+		}
+	}
+
+	return reply, nil
+}
+
+func checkGetObjReq(req *pb.GetObjRequest) (err error) {
+	if req == nil {
+		return utils.NewStatusError(7000, "please set request")
+	}
+
+	if len(req.IdList) != 0 && len(req.NameList) != 0 {
+		return utils.NewStatusError(7000, "you set too many fields")
 	}
 
 	return
@@ -208,20 +148,17 @@ func getObjByNames(names []string) (objs []*model.MtObj, err error) {
 	return
 }
 
-func getObjIDsByNames(names []string) (ids []int, err error) {
-	db := global.DATABASE
-	err = db.Model(&model.MtObj{}).Select("id").Where("name in ?", names).Find(&ids).Error
-	return
-}
-
-func getObjTimeInfoAndDescription(req *pb.GetObjRequest, obj *model.MtObj) (*common.TimeInfo, *string) {
-	if req.GetShowTimeinfoAndDescription() {
-		return &common.TimeInfo{
+func getObjTimeInfoAndDescription(req *pb.GetObjRequest, obj *model.MtObj) (ti *common.TimeInfo, des *string) {
+	if req.GetShowTimeinfo() {
+		ti = &common.TimeInfo{
 			CreatedAt: obj.CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt: obj.UpdatedAt.Format("2006-01-02 15:04:05"),
-		}, obj.Description
+		}
 	}
-	return nil, nil
+	if req.GetShowDescription() {
+		des = obj.Description
+	}
+	return
 }
 
 func getObjFieldsDto(req *pb.GetObjRequest, objId int) (res []*pb.ObjFieldDao, err error) {
@@ -255,12 +192,15 @@ func getObjFieldsDto(req *pb.GetObjRequest, objId int) (res []*pb.ObjFieldDao, e
 	return
 }
 
-func getFieldTimeInfoAndDescription(req *pb.GetObjRequest, field *model.MtObjField) (*common.TimeInfo, *string) {
-	if req.GetShowTimeinfoAndDescription() {
-		return &common.TimeInfo{
+func getFieldTimeInfoAndDescription(req *pb.GetObjRequest, field *model.MtObjField) (ti *common.TimeInfo, des *string) {
+	if req.GetShowTimeinfo() {
+		ti = &common.TimeInfo{
 			CreatedAt: field.CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt: field.UpdatedAt.Format("2006-01-02 15:04:05"),
-		}, field.Description
+		}
 	}
-	return nil, nil
+	if req.GetShowDescription() {
+		des = field.Description
+	}
+	return
 }

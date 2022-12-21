@@ -21,6 +21,10 @@ func (metadataServer) CreateObj(ctx context.Context, req *pb.CreateObjRequest) (
 	return handler.CreateObj(ctx, req)
 }
 
-func (metadataServer) GetObj(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjReply, error) {
-	return handler.GetObj(ctx, req)
+func (metadataServer) GetObjByID(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjByIDReply, error) {
+	return handler.GetObjByID(ctx, req)
+}
+
+func (metadataServer) GetObjByName(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjByNameReply, error) {
+	return handler.GetObjByName(ctx, req)
 }
