@@ -113,15 +113,13 @@ func GetObj(ctx context.Context, req *pb.GetObjRequest) (*pb.GetObjReply, error)
 		if single {
 			if len(objIds) == 1 {
 				res.ObjWithFields = &pb.ObjDaoWithFieldsDao{
-					Obj:    &pb.ObjDao{Id: int32(objIds[0])},
 					Fields: fieldsMap[objIds[0]],
 				}
 			}
 			return res, nil
 		}
-		for k, v := range fieldsMap {
+		for _, v := range fieldsMap {
 			res.ObjWithFieldsList = append(res.ObjWithFieldsList, &pb.ObjDaoWithFieldsDao{
-				Obj:    &pb.ObjDao{Id: int32(k)},
 				Fields: v,
 			})
 		}
