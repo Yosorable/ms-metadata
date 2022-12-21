@@ -200,19 +200,19 @@ func checkGetObjReq(req *pb.GetObjRequest) (single bool, err error) {
 
 func getObjByIDs(ids []int32) (objs []*model.MtObj, err error) {
 	db := global.DATABASE
-	err = db.Where("id in ?", ids).Take(&objs).Error
+	err = db.Where("id in ?", ids).Find(&objs).Error
 	return
 }
 
 func getObjByNames(names []string) (objs []*model.MtObj, err error) {
 	db := global.DATABASE
-	err = db.Where("name in ?", names).Take(&objs).Error
+	err = db.Where("name in ?", names).Find(&objs).Error
 	return
 }
 
 func getObjIDsByNames(names []string) (ids []int, err error) {
 	db := global.DATABASE
-	err = db.Select("id").Where("name in ?", names).Take(&ids).Error
+	err = db.Model(&model.MtObj{}).Select("id").Where("name in ?", names).Find(&ids).Error
 	return
 }
 
@@ -229,7 +229,7 @@ func getObjTimeInfoAndDescription(req *pb.GetObjRequest, obj *model.MtObj) (*com
 func getObjFieldsDto(req *pb.GetObjRequest, objId int) (res []*pb.ObjFieldDao, err error) {
 	var fields []*model.MtObjField
 	db := global.DATABASE
-	err = db.Where("obj_id = ?", objId).Take(&fields).Error
+	err = db.Where("obj_id = ?", objId).Find(&fields).Error
 
 	if err != nil {
 		return nil, err
